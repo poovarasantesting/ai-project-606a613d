@@ -1,115 +1,104 @@
-import React from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { z } from "zod";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Instagram } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
-import { useAuth } from "@/context/AuthContext";
-
-const loginSchema = z.object({
-  email: z.string().email({ message: "Please enter a valid email address" }),
-  password: z.string().min(1, { message: "Password is required" }),
-});
-
-type LoginFormValues = z.infer<typeof loginSchema>;
 
 export default function Login() {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
-  const navigate = useNavigate();
-  const { login } = useAuth();
-  
-  const form = useForm<LoginFormValues>({
-    resolver: zodResolver(loginSchema),
-    defaultValues: {
-      email: "",
-      password: "",
-    },
-  });
 
-  const onSubmit = (data: LoginFormValues) => {
-    const success = login(data.email, data.password);
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
     
-    if (success) {
+    // Simulate login process
+    setTimeout(() => {
+      setIsLoading(false);
       toast({
-        title: "Login successful!",
-        description: "Welcome back to your account.",
+        title: "Login Successful",
+        description: "Welcome back to Instagram!",
       });
-      navigate("/dashboard");
-    } else {
-      toast({
-        title: "Login failed",
-        description: "Invalid email or password. Please try again.",
-        variant: "destructive",
-      });
-    }
+      // In a real app, you would handle authentication and redirection here
+    }, 1500);
   };
 
   return (
-    <div className="flex justify-center items-center">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle className="text-2xl">Login to Your Account</CardTitle>
-          <CardDescription>
-            Enter your credentials to access your account
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email</FormLabel>
-                    <FormControl>
-                      <Input type="email" placeholder="Enter your email" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Password</FormLabel>
-                    <FormControl>
-                      <Input type="password" placeholder="Enter your password" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <Button type="submit" className="w-full">
-                Login
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+      <div className="w-full max-w-md space-y-6">
+        <Card className="w-full border border-gray-200 shadow-sm">
+          <CardHeader className="space-y-1 items-center text-center">
+            <div className="flex justify-center mb-4">
+              <Instagram size={48} className="text-pink-600" />
+            </div>
+            <CardTitle className="text-xl font-semibold text-center">Instagram</CardTitle>
+            <CardDescription>Sign in to your account</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleLogin} className="space-y-4">
+              <div className="space-y-2">
+                <Input
+                  type="text"
+                  placeholder="Username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  required
+                  className="w-full"
+                />
+              </div>
+              <div className="space-y-2">
+                <Input
+                  type="password"
+                  placeholder="Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  className="w-full"
+                />
+              </div>
+              <Button
+                type="submit"
+                className="w-full bg-blue-500 hover:bg-blue-600"
+                disabled={isLoading}
+              >
+                {isLoading ? "Signing in..." : "Sign In"}
               </Button>
             </form>
-          </Form>
-        </CardContent>
-        <CardFooter className="flex justify-center">
-          <p className="text-sm text-muted-foreground">
-            Don't have an account?{" "}
-            <Link to="/register" className="text-primary underline">
-              Register
-            </Link>
-          </p>
-        </CardFooter>
-      </Card>
+          </CardContent>
+          <CardFooter className="border-t p-4">
+            <div className="w-full text-center text-sm">
+              <p className="text-gray-600">
+                Don't have an account?{" "}
+                <a href="#" className="text-blue-500 hover:underline">
+                  Sign up
+                </a>
+              </p>
+            </div>
+          </CardFooter>
+        </Card>
+        <div className="text-center text-sm text-gray-500">
+          <p>Get the app.</p>
+          <div className="flex justify-center space-x-4 mt-4">
+            <a href="#" className="block">
+              <img 
+                src="https://static.cdninstagram.com/rsrc.php/v3/yt/r/Yfc020c87j0.png" 
+                alt="App Store" 
+                className="h-10"
+              />
+            </a>
+            <a href="#" className="block">
+              <img 
+                src="https://static.cdninstagram.com/rsrc.php/v3/yz/r/c5Rp7Ym-Klz.png" 
+                alt="Google Play" 
+                className="h-10"
+              />
+            </a>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
